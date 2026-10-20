@@ -70,9 +70,17 @@ function resize() {
 }
 
 // ---------------------------------------------------------------- themes & background patterns
+// Bright, kid-friendly palettes built around the Anatomyar brand (orange + blue). Each lane has its own
+// candy colour: [top, bottom, lip].
 const THEMES = {
-  classic: { bg1: '#0d0f1c', bg2: '#1b1f38', line: 'rgba(214,181,110,.16)', tile1: '#11131c', tile2: '#2a2e40', edge: '#d6b56e', hit: '#d6b56e', text: '#f4ead2' },
-  iranian: { bg1: '#06162e', bg2: '#0c2b52', line: 'rgba(64,208,200,.16)', tile1: '#0a2a5c', tile2: '#15468a', edge: '#e2b951', hit: '#40d0c8', text: '#f4ead2' },
+  classic: {
+    bg1: '#ece6ff', bg2: '#e4f0ff', line: 'rgba(36,83,166,.10)', glyph: 'rgba(36,83,166,.07)', beat: '#2453a6', hit: '#f7941d', text: '#1f2a4d',
+    tiles: [['#ffb057', '#f7731d', '#c4520e'], ['#5b8cff', '#2453a6', '#1a3b7a'], ['#b28bff', '#7c3aed', '#5b21b6'], ['#3ee0a0', '#0ea371', '#077a54']],
+  },
+  iranian: {
+    bg1: '#fff3e0', bg2: '#e2faf6', line: 'rgba(15,118,110,.13)', glyph: 'rgba(15,118,110,.08)', beat: '#0f766e', hit: '#14b8a6', text: '#1f2a4d',
+    tiles: [['#3fe0cc', '#0f9488', '#0b6e66'], ['#ffad4d', '#e2661a', '#a9470c'], ['#5b9bff', '#1e4fc2', '#163a8f'], ['#ff8cc6', '#d42a7f', '#9b1c5c']],
+  },
 };
 let theme = THEMES.classic;
 
@@ -80,12 +88,12 @@ let theme = THEMES.classic;
 function buildBg() {
   const [c, g] = mk(W * dpr, H * dpr);
   g.scale(dpr, dpr);
-  const grd = g.createLinearGradient(0, 0, 0, H);
+  const grd = g.createLinearGradient(0, 0, W * 0.3, H);
   grd.addColorStop(0, theme.bg2); grd.addColorStop(1, theme.bg1);
   g.fillStyle = grd; g.fillRect(0, 0, W, H);
-  g.strokeStyle = theme.line; g.lineWidth = 1;
+  g.strokeStyle = theme.line; g.lineWidth = 1.5;
   if (theme === THEMES.iranian) {
-    const s = 64;
+    const s = 72;
     for (let y = -s; y < H + s; y += s) for (let x = -s; x < W + s; x += s) {
       const cx = x + (Math.floor(y / s) % 2 ? s / 2 : 0), cy = y;
       g.beginPath();
@@ -100,11 +108,21 @@ function buildBg() {
   } else {
     for (let k = 0; k < 4; k++) {
       const y0 = H * (0.15 + k * 0.22);
-      for (let l = 0; l < 5; l++) { g.beginPath(); g.moveTo(0, y0 + l * 9); g.lineTo(W, y0 + l * 9); g.stroke(); }
+      for (let l = 0; l < 5; l++) { g.beginPath(); g.moveTo(0, y0 + l * 10); g.lineTo(W, y0 + l * 10); g.stroke(); }
     }
   }
-  const v = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.3, W / 2, H / 2, Math.max(W, H) * 0.8);
-  v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.5)');
+  // scattered music notes (same layout every time)
+  g.fillStyle = theme.glyph; g.textAlign = 'center'; g.textBaseline = 'middle';
+  const glyphs = ['♪', '♫', '♩', '♬'];
+  let seed = 11;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0, n = Math.round((W * H) / 26000); i < n; i++) {
+    const x = rnd() * W, y = rnd() * H, sz = 22 + rnd() * 34;
+    g.save(); g.translate(x, y); g.rotate((rnd() - 0.5) * 0.8);
+    g.font = `900 ${Math.round(sz)}px Vazirmatn, sans-serif`; g.fillText(glyphs[i % 4], 0, 0); g.restore();
+  }
+  const v = g.createRadialGradient(W / 2, H * 0.45, Math.min(W, H) * 0.2, W / 2, H / 2, Math.max(W, H) * 0.75);
+  v.addColorStop(0, 'rgba(255,255,255,.35)'); v.addColorStop(1, 'rgba(255,255,255,0)');
   g.fillStyle = v; g.fillRect(0, 0, W, H);
   bgC = c;
 }
@@ -257,6 +275,7 @@ const ui = {
   editor: $('editor'), edTitle: $('edTitle'), edNotes: $('edNotes'), edAccomp: $('edAccomp'), edSpeed: $('edSpeed'), edErr: $('edErr'),
   starTotal: $('starTotal'), daily: $('daily'), instPick: $('instPick'), lesson: $('lesson'), toast: $('toast'), overNews: $('overNews'),
   edFile: $('edFile'), edQuarter: $('edQuarter'), edImport: $('edImport'),
+  splash: $('splash'), btnStart: $('btnStart'), help: $('help'), btnHelp: $('btnHelp'), btnHelpOk: $('btnHelpOk'),
   edInst: document.querySelectorAll('[data-inst]'), btnPreview: $('btnPreview'), btnSave: $('btnSave'), btnCancel: $('btnCancel'),
 };
 const show = (el, on) => { el.hidden = !on; };
@@ -367,6 +386,7 @@ const ICONS = {
   kamancheh: '<svg viewBox="0 0 32 32"><path d="M16 2.5v12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="16" cy="19.5" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 25.5v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M5 11l22 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
   santur: '<svg viewBox="0 0 32 32"><path d="M4 23 9 9h14l5 14z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 13h16M7 16.5h18M6 20h20" stroke="currentColor" stroke-width="1.2"/><path d="M11 4l4 7M21 4l-4 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
 };
+const LEVELS = { 1: 'آسان', 2: 'متوسط', 3: 'سخت' };
 const starsHtml = n => [0, 1, 2].map(i => `<span class="${i < n ? 'on' : ''}">★</span>`).join('');
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -376,16 +396,16 @@ function renderList() {
   show(ui.addBtn, tab === 'mine');
   const list = allSongs().filter(s => s.cat === tab);
   if (!list.length) {
-    ui.list.innerHTML = `<p class="empty">هنوز آهنگی نساخته‌ای.<br>با دکمه‌ی «افزودن آهنگ» یک ملودی بنویس، مثلاً یک ترانه‌ی محلی ایرانی.</p>`;
+    ui.list.innerHTML = `<p class="empty"><span class="big">🎼</span>هنوز آهنگی نساخته‌ای.<br>با دکمه‌ی «ساختن آهنگ تازه» یک ملودی بنویس، مثلاً یک ترانه‌ی محلی ایرانی.</p>`;
     return;
   }
   ui.list.innerHTML = list.map(s => {
     const b = best[s.id] || { score: 0, stars: 0 };
-    const lvl = s.level ? '<i class="lvl">' + '●'.repeat(s.level) + '<span class="off">' + '●'.repeat(3 - s.level) + '</span></i>' : '';
+    const lvl = s.level ? `<i class="lvl l${s.level}">${LEVELS[s.level]}</i>` : '';
     const locked = !songOpen(s);
     return `<button class="song ${s.inst}${locked ? ' locked' : ''}" data-id="${esc(s.id)}">
       <span class="ic">${ICONS[s.inst] || ICONS.piano}</span>
-      <span class="meta"><b>${esc(s.title)}</b><small>${esc(s.by || (s.inst === 'santur' ? 'سنتور' : 'پیانو'))} ${lvl}</small></span>
+      <span class="meta"><b>${esc(s.title)}</b><small>${lvl}<span>${esc(s.by || (s.inst === 'santur' ? 'سنتور' : 'پیانو'))}</span></small></span>
       <span class="res">${locked ? `<span class="lock">🔒 ${faNum(s.unlock)}★</span>` : `<span class="stars">${starsHtml(b.stars)}</span><small>${b.score ? faNum(b.score) : ''}</small>`}
         ${s.cat === 'mine' ? `<span class="acts"><span class="edit" data-edit="${esc(s.id)}" aria-label="ویرایش">✎</span><span class="del" data-del="${esc(s.id)}" aria-label="حذف">×</span></span>` : ''}</span>
     </button>`;
@@ -424,6 +444,18 @@ ui.btnQuit.addEventListener('click', toMenu);
 ui.btnRetry.addEventListener('click', () => startSong(song));
 ui.btnSongs.addEventListener('click', toMenu);
 
+// splash (first tap also unlocks audio on phones) and the how-to-play card
+function closeSplash() {
+  if (ui.splash.hidden) return;
+  Sound.init();
+  show(ui.splash, false);
+  if (!store.get('nava.helped', false)) { store.set('nava.helped', true); show(ui.help, true); }
+}
+ui.btnStart.addEventListener('click', closeSplash);
+ui.btnHelp.addEventListener('click', () => show(ui.help, true));
+ui.btnHelpOk.addEventListener('click', () => show(ui.help, false));
+ui.help.addEventListener('click', e => { if (e.target === ui.help) show(ui.help, false); });
+
 // ---------------------------------------------------------------- flow
 async function startSong(s) {
   if (!s) return;
@@ -440,6 +472,7 @@ async function startSong(s) {
   theme = inst === 'piano' ? THEMES.classic : THEMES.iranian;
   buildBg();
   show(ui.menu, false); show(ui.over, false); show(ui.pause, false);
+  Confetti.clear();
   mode = 'loading';
   show(ui.loading, true);
   ui.loadBar.style.transform = 'scaleX(0)';
@@ -501,7 +534,11 @@ function finishRun() {
   const isBest = score > prev.score;
   best[song.id] = { score: Math.max(prev.score, score), stars: Math.max(prev.stars, stars) };
   store.set('nava.best', best);
-  ui.overTitle.textContent = stars >= 3 ? (lap > 2 ? 'استادانه!' : 'آفرین!') : stars > 0 ? 'خوب بود!' : 'دوباره امتحان کن';
+  const pick = a => a[(Math.random() * a.length) | 0];
+  ui.overTitle.textContent = stars >= 3 ? (lap > 2 ? 'استادانه! 🏆' : pick(['شاهکار! 🤩', 'فوق‌العاده! 🌟', 'آفرین، عالی بود! 🎉']))
+    : stars === 2 ? pick(['خیلی خوب بود! 😃', 'داری حرفه‌ای می‌شوی! 🎹'])
+    : stars === 1 ? pick(['آفرین، ادامه بده! 💪', 'شروع خوبی بود! 🙂'])
+    : pick(['اشکالی ندارد، دوباره امتحان کن! 🙂', 'یک بار دیگر؛ این بار بهتر می‌شود! 💪']);
   ui.overScore.textContent = faNum(score);
   ui.overStars.innerHTML = starsHtml(stars) + (lap > 1 ? `<em>دور ${faNum(lap)}</em>` : '');
   ui.overBest.textContent = faNum(best[song.id].score);
@@ -522,6 +559,7 @@ function finishRun() {
   ui.overStats.innerHTML = `عالی <b>${faNum(judged.perfect)}</b> · خوب <b>${faNum(judged.great)}</b> · بیشترین کمبو <b>${faNum(maxStreak)}</b><br>دقت ریتم <b>${faNum(acc)}٪</b>`;
   show(ui.newBest, isBest && score > 0);
   show(ui.hud, false); show(ui.over, true);
+  if (stars > 0 || news.length) Confetti.burst(stars >= 3 ? 160 : stars === 2 ? 90 : 50);
   ui.btnRetry.disabled = true;
   setTimeout(() => { ui.btnRetry.disabled = false; }, 500);
 }
@@ -557,7 +595,7 @@ const isLong = tl => tl.h > 1.01;
 // Timing: a tile is due when its bottom reaches the line one row above the screen's bottom edge
 // (pos === tile.b), which is exactly when the song's rhythm wants it. On-time taps build the streak.
 const POINTS = { perfect: 3, great: 2, ok: 1 };
-const JUDGE_TEXT = { perfect: 'عالی!', great: 'خوب' };
+const JUDGE_TEXT = { perfect: 'عالی!', great: 'خوب!' };
 const STEPS = [[50, 4], [25, 3], [10, 2]];
 const mult = () => { for (const [n, m] of STEPS) if (streak >= n) return m; return 1; };
 function judge(tl) {
@@ -624,8 +662,11 @@ window.addEventListener('keydown', e => {
     if (col === tl.col) hit(tl, B.x + (col + 0.5) * B.colW, bottom - B.rowH * 0.5, e.code);
     else if (mode === 'play') triggerFail('wrong', null, B.x + (col + 0.5) * B.colW, bottom - B.rowH * 0.5);
     e.preventDefault();
+  } else if (!ui.splash.hidden && (e.code === 'Enter' || e.code === 'Space')) {
+    closeSplash(); e.preventDefault();
   } else if (e.code === 'Escape') {
-    if (mode === 'play') pauseGame(); else if (mode === 'pause') resumeGame();
+    if (!ui.help.hidden) show(ui.help, false);
+    else if (mode === 'play') pauseGame(); else if (mode === 'pause') resumeGame();
   } else if (e.code === 'Space' && mode === 'over' && !ui.btnRetry.disabled) { startSong(song); e.preventDefault(); }
 });
 
@@ -783,37 +824,56 @@ function update(dt) {
   }
 }
 // ---------------------------------------------------------------- render
-function drawTile(x, y, w, h, tl, alpha) {
-  const pad = 1.5;
+const tileColor = col => theme.tiles[((col % COLS) + COLS) % COLS];
+// Candy tile: lane colour gradient, a darker lip at the bottom for a chunky 3-D feel, a glossy top band
+// and a music-note (or khatam star for Iranian songs) on the playable part.
+function drawTile(x, y, w, h, tl, alpha, col) {
+  const pad = 3, r = Math.min(16, w * 0.16);
+  const [c1, c2, lip] = tileColor(tl ? tl.col : col);
+  const ix = x + pad, iw = w - pad * 2, iy = y + pad, ih = h - pad * 2;
   ctx.globalAlpha = alpha;
-  const grd = ctx.createLinearGradient(0, y, 0, y + h);
-  grd.addColorStop(0, theme.tile2); grd.addColorStop(1, theme.tile1);
+  ctx.fillStyle = lip;
+  rrect(ctx, ix, iy + 4, iw, ih - 4, r); ctx.fill();
+  const grd = ctx.createLinearGradient(0, iy, 0, iy + ih);
+  grd.addColorStop(0, c1); grd.addColorStop(1, c2);
   ctx.fillStyle = grd;
-  rrect(ctx, x + pad, y + pad, w - pad * 2, h - pad * 2, 8); ctx.fill();
-  ctx.strokeStyle = theme.edge; ctx.globalAlpha = alpha * 0.55; ctx.lineWidth = 1.2;
-  rrect(ctx, x + pad + 3, y + pad + 3, w - pad * 2 - 6, h - pad * 2 - 6, 6); ctx.stroke();
-  ctx.globalAlpha = alpha * 0.12; ctx.fillStyle = '#fff';
-  rrect(ctx, x + pad + 4, y + pad + 4, w - pad * 2 - 8, Math.min(18, h * 0.2), 5); ctx.fill();
-  if (theme === THEMES.iranian) {
-    ctx.globalAlpha = alpha * 0.5; ctx.strokeStyle = theme.edge; ctx.lineWidth = 1;
-    const cx = x + w / 2, cy = y + h - Math.min(h, B.rowH) / 2, s = Math.min(w, B.rowH) * 0.16;
-    ctx.beginPath();
-    for (let i = 0; i < 16; i++) { const a = (i / 16) * TAU - Math.PI / 2, r = i % 2 ? s * 0.55 : s; i ? ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r) : ctx.moveTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r); }
-    ctx.closePath(); ctx.stroke();
+  rrect(ctx, ix, iy, iw, ih - 5, r); ctx.fill();
+  ctx.globalAlpha = alpha * 0.28; ctx.fillStyle = '#fff';
+  rrect(ctx, ix + 5, iy + 5, iw - 10, Math.min(16, ih * 0.16), r * 0.6); ctx.fill();
+  // symbol in the bottom row (where the finger goes)
+  const rowH = Math.min(h, B.rowH);
+  const cx = x + w / 2, cy = y + h - rowH / 2 - 2;
+  if (!(tl && tl.h > 1.01)) {
+    ctx.globalAlpha = alpha * 0.9; ctx.fillStyle = '#fff'; ctx.strokeStyle = '#fff';
+    if (theme === THEMES.iranian) {
+      const s = Math.min(w, rowH) * 0.17; ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < 16; i++) { const a = (i / 16) * TAU - Math.PI / 2, rr = i % 2 ? s * 0.55 : s; i ? ctx.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr) : ctx.moveTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); }
+      ctx.closePath(); ctx.stroke();
+    } else {
+      ctx.font = `900 ${Math.round(Math.min(w * 0.34, rowH * 0.34, 40))}px Vazirmatn, sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('♪', cx, cy);
+    }
   }
   if (tl && tl.q) {
     // quarter-tone tile: its Persian name, so players learn where koron and sori fall
-    ctx.globalAlpha = alpha * 0.9; ctx.fillStyle = '#7fe8e1';
-    ctx.font = `700 ${Math.round(Math.min(w * 0.17, 14))}px Vazirmatn, sans-serif`;
+    ctx.globalAlpha = alpha; ctx.fillStyle = '#fff';
+    ctx.font = `800 ${Math.round(Math.min(w * 0.17, 15))}px Vazirmatn, sans-serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(tl.q, x + w / 2, y + Math.min(h, B.rowH) * 0.28);
+    ctx.fillText(tl.q, x + w / 2, y + Math.min(h, B.rowH) * 0.26);
   }
   if (tl && tl.h > 1.01) {
-    ctx.globalAlpha = alpha * 0.35; ctx.strokeStyle = theme.edge; ctx.lineWidth = 2; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(x + w / 2, y + B.rowH * 0.3); ctx.lineTo(x + w / 2, y + h - B.rowH * 0.5 - 12); ctx.stroke();
+    ctx.globalAlpha = alpha * 0.55; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    ctx.setLineDash([2, 9]);
+    ctx.beginPath(); ctx.moveTo(cx, y + B.rowH * 0.3); ctx.lineTo(cx, y + h - B.rowH * 0.5 - 16); ctx.stroke();
+    ctx.setLineDash([]);
     // "hold" marker: a ring where the finger goes down
-    ctx.globalAlpha = alpha * 0.7; ctx.lineWidth = 2.5;
-    ctx.beginPath(); ctx.arc(x + w / 2, y + h - B.rowH * 0.5, Math.min(w * 0.14, 11), 0, TAU); ctx.stroke();
+    ctx.globalAlpha = alpha * 0.95; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(cx, y + h - B.rowH * 0.5, Math.min(w * 0.16, 14), 0, TAU); ctx.stroke();
+    ctx.font = `800 ${Math.round(Math.min(w * 0.13, 13))}px Vazirmatn, sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#fff';
+    ctx.fillText('نگه دار', cx, y + h - B.rowH * 0.5 + Math.min(w * 0.16, 14) + 12);
   }
   ctx.globalAlpha = 1;
 }
@@ -824,13 +884,13 @@ function render() {
   ctx.drawImage(bgC, 0, 0, W, H);
 
   // lanes
-  ctx.fillStyle = 'rgba(255,255,255,.025)';
+  ctx.fillStyle = 'rgba(255,255,255,.38)';
   ctx.fillRect(B.x, 0, B.w, H);
-  ctx.strokeStyle = 'rgba(255,255,255,.07)'; ctx.lineWidth = 1;
+  ctx.strokeStyle = theme.line; ctx.lineWidth = 1.5;
   for (let i = 0; i <= COLS; i++) { const x = Math.round(B.x + i * B.colW) + 0.5; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
 
   if (mode === 'menu') {
-    for (const m of menuTiles) drawTile(B.x + m.col * B.colW, m.y, B.colW, B.rowH * m.h, null, 0.35);
+    for (const m of menuTiles) drawTile(B.x + m.col * B.colW, m.y, B.colW, B.rowH * m.h, null, 0.3, m.col);
     return;
   }
   if (mode === 'loading') return;
@@ -846,18 +906,18 @@ function render() {
   }
   // beat line: a tile landing its bottom edge here is exactly on the beat
   const ly = H - B.rowH * START_ROW;
-  ctx.globalAlpha = 0.22 + heat * 0.25 + flash * 0.4; ctx.strokeStyle = theme.edge; ctx.lineWidth = 2;
-  ctx.setLineDash([6, 8]); ctx.beginPath(); ctx.moveTo(B.x, ly); ctx.lineTo(B.x + B.w, ly); ctx.stroke(); ctx.setLineDash([]);
+  ctx.globalAlpha = 0.3 + heat * 0.3 + flash * 0.4; ctx.strokeStyle = theme.beat; ctx.lineWidth = 3; ctx.lineCap = 'round';
+  ctx.setLineDash([8, 10]); ctx.beginPath(); ctx.moveTo(B.x, ly); ctx.lineTo(B.x + B.w, ly); ctx.stroke(); ctx.setLineDash([]);
   ctx.globalAlpha = 1;
 
   for (const tl of tiles) {
     const bottom = tileBottom(tl);
     if (tl.marker) {
       if (bottom < -20 || bottom > H + 20) continue;
-      ctx.fillStyle = theme.edge; ctx.globalAlpha = 0.8;
-      ctx.font = `800 ${Math.round(B.rowH * 0.13)}px Vazirmatn, sans-serif`;
+      ctx.fillStyle = theme.beat; ctx.globalAlpha = 0.9;
+      ctx.font = `900 ${Math.round(Math.min(B.rowH * 0.14, 26))}px Vazirmatn, sans-serif`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(`دور ${faNum(tl.marker)} · سریع‌تر`, B.x + B.w / 2, bottom - B.rowH * 0.3);
+      ctx.fillText(`🚀 دور ${faNum(tl.marker)} · سریع‌تر!`, B.x + B.w / 2, bottom - B.rowH * 0.3);
       ctx.globalAlpha = 1;
       continue;
     }
@@ -867,34 +927,41 @@ function render() {
     if (tl.holding) {
       drawTile(x, top, B.colW, h, tl, 1);
       const fh = tl.fill * B.rowH;
-      ctx.globalAlpha = 0.75; ctx.fillStyle = theme.hit;
-      rrect(ctx, x + 3, bottom - fh + 1, B.colW - 6, fh - 4, 8); ctx.fill();
-      ctx.globalAlpha = 0.9 + Math.sin(t * 18) * 0.1; ctx.fillStyle = '#fff';
+      ctx.globalAlpha = 0.6; ctx.fillStyle = '#fff';
+      rrect(ctx, x + 6, bottom - fh + 1, B.colW - 12, fh - 9, 12); ctx.fill();
+      ctx.globalAlpha = 0.9 + Math.sin(t * 18) * 0.1; ctx.fillStyle = theme.hit;
       ctx.beginPath(); ctx.arc(x + B.colW / 2, bottom - fh + 8, Math.min(B.colW * 0.12, 9), 0, TAU); ctx.fill();
       ctx.globalAlpha = 1;
       continue;
     }
     if (tl.tapped) {
-      const a = Math.max(0, (tl.full ? 0.8 : 0.55) - tl.tt * 0.9);
-      ctx.globalAlpha = a; ctx.fillStyle = theme.hit;
-      rrect(ctx, x + 2, top + 2, B.colW - 4, h - 4, 8); ctx.fill();
-      ctx.globalAlpha = 1;
+      const a = Math.max(0, (tl.full ? 0.7 : 0.45) - tl.tt * 0.9);
+      if (a > 0) {
+        ctx.globalAlpha = a; ctx.fillStyle = tileColor(tl.col)[0];
+        rrect(ctx, x + 3, top + 3, B.colW - 6, h - 6, 14); ctx.fill();
+        ctx.globalAlpha = 1;
+      }
       continue;
     }
     let alpha = 1;
     if (fail && fail.tile === tl) {
       const blink = Math.sin(failT * 22) > 0;
       drawTile(x, top, B.colW, h, tl, 1);
-      if (blink) { ctx.globalAlpha = 0.7; ctx.fillStyle = '#e8384f'; rrect(ctx, x + 2, top + 2, B.colW - 4, h - 4, 8); ctx.fill(); ctx.globalAlpha = 1; }
+      if (blink) { ctx.globalAlpha = 0.8; ctx.fillStyle = '#ef4461'; rrect(ctx, x + 3, top + 3, B.colW - 6, h - 6, 14); ctx.fill(); ctx.globalAlpha = 1; }
       continue;
     }
     drawTile(x, top, B.colW, h, tl, alpha);
     if (mode === 'ready' && tl === tiles.find(o => !o.marker)) {
-      ctx.fillStyle = theme.text;
-      ctx.font = `900 ${Math.round(Math.min(B.colW * 0.24, 24))}px Vazirmatn, sans-serif`;
+      // pulsing "start" badge on the first tile
+      const pulse = 1 + Math.sin(t * 5) * 0.06;
+      const bw = Math.min(B.colW * 0.8, 110), bh = Math.min(B.rowH * 0.3, 40);
+      ctx.save(); ctx.translate(x + B.colW / 2, bottom - B.rowH / 2); ctx.scale(pulse, pulse);
+      ctx.fillStyle = '#fff'; rrect(ctx, -bw / 2, -bh / 2, bw, bh, bh / 2); ctx.fill();
+      ctx.fillStyle = tileColor(tl.col)[1];
+      ctx.font = `900 ${Math.round(Math.min(B.colW * 0.2, 22))}px Vazirmatn, sans-serif`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.globalAlpha = 0.75 + Math.sin(t * 5) * 0.25;
-      ctx.fillText('شروع', x + B.colW / 2, bottom - B.rowH / 2);
+      ctx.fillText('شروع 👆', 0, 1);
+      ctx.restore();
       ctx.globalAlpha = 1;
     }
   }
@@ -903,25 +970,26 @@ function render() {
   if (fail && fail.kind === 'wrong') {
     const col = Math.floor((fail.x - B.x) / B.colW);
     const blink = Math.sin(failT * 22) > 0;
-    ctx.globalAlpha = blink ? 0.75 : 0.35; ctx.fillStyle = '#e8384f';
-    rrect(ctx, B.x + col * B.colW + 2, fail.y - B.rowH / 2 + 2, B.colW - 4, B.rowH - 4, 8); ctx.fill();
+    ctx.globalAlpha = blink ? 0.8 : 0.4; ctx.fillStyle = '#ef4461';
+    rrect(ctx, B.x + col * B.colW + 3, fail.y - B.rowH / 2 + 3, B.colW - 6, B.rowH - 6, 14); ctx.fill();
     ctx.globalAlpha = 1;
   }
 
   // ripples
   for (const r of ripples) {
     const k = r.t / 0.5;
-    ctx.globalAlpha = (1 - k) * 0.6; ctx.strokeStyle = theme.hit; ctx.lineWidth = 3 * (1 - k) + 1;
+    ctx.globalAlpha = (1 - k) * 0.7; ctx.strokeStyle = tileColor(r.col)[1]; ctx.lineWidth = 5 * (1 - k) + 1;
     ctx.beginPath(); ctx.arc(r.x, r.y, 10 + k * B.colW * 0.6, 0, TAU); ctx.stroke();
   }
   // hold bonuses
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.font = `900 ${Math.round(Math.min(B.colW * 0.3, 30))}px Vazirmatn, sans-serif`;
+  ctx.font = `900 ${Math.round(Math.min(B.colW * 0.3, 32))}px Vazirmatn, sans-serif`;
+  ctx.lineJoin = 'round'; ctx.lineWidth = 5; ctx.strokeStyle = '#fff';
   for (const f of floats) {
     ctx.globalAlpha = 1 - f.t / 0.9;
-    ctx.fillStyle = f.j === 'perfect' ? '#ffe7a8' : f.j === 'great' || f.j === 'q' ? '#bff5f1' : theme.edge;
+    ctx.fillStyle = f.j === 'perfect' ? '#f7731d' : f.j === 'great' ? '#2453a6' : f.j === 'q' ? '#0f766e' : theme.text;
     const sc = f.j ? 0.75 + Math.min(1, f.t * 8) * 0.25 : 1;
-    ctx.save(); ctx.translate(f.x, f.y - f.t * 50); ctx.scale(sc, sc); ctx.fillText(f.text, 0, 0); ctx.restore();
+    ctx.save(); ctx.translate(f.x, f.y - f.t * 50); ctx.scale(sc, sc); ctx.strokeText(f.text, 0, 0); ctx.fillText(f.text, 0, 0); ctx.restore();
   }
   ctx.globalAlpha = 1;
 }
@@ -948,12 +1016,51 @@ function updateHud() {
   }
 }
 
+// ---------------------------------------------------------------- confetti (results screen)
+const Confetti = (() => {
+  const c = document.getElementById('fx'), g = c.getContext('2d');
+  const COLORS = ['#f7941d', '#2453a6', '#8b5cf6', '#22c55e', '#ff5fa2', '#ffc93c', '#14b8a6'];
+  const reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let parts = [], clean = true;
+  function size() { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); clean = true; }
+  function burst(n) {
+    if (reduced) return;
+    for (let i = 0; i < n; i++) {
+      const fromLeft = i % 2 === 0;
+      parts.push({
+        x: fromLeft ? -10 : W + 10, y: H * rand(0.45, 0.8),
+        vx: (fromLeft ? 1 : -1) * rand(180, 520), vy: -rand(380, 820),
+        r: rand(0, TAU), vr: rand(-8, 8), w: rand(7, 13), h: rand(4, 8),
+        col: COLORS[i % COLORS.length], life: rand(2.2, 3.4), t: 0,
+      });
+    }
+  }
+  function step(dt) {
+    if (!parts.length && clean) return;
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, W, H);
+    clean = !parts.length;
+    if (clean) return;
+    for (const p of parts) {
+      p.t += dt; p.vy += 900 * dt; p.vx *= 1 - 0.9 * dt;
+      p.x += p.vx * dt; p.y += p.vy * dt; p.r += p.vr * dt;
+      g.globalAlpha = Math.max(0, Math.min(1, (p.life - p.t) / 0.5));
+      g.save(); g.translate(p.x, p.y); g.rotate(p.r); g.fillStyle = p.col;
+      g.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * Math.abs(Math.cos(p.r * 1.7))); g.restore();
+    }
+    g.globalAlpha = 1;
+    parts = parts.filter(p => p.t < p.life && p.y < H + 40);
+  }
+  return { size, burst, step, clear: () => { parts = []; } };
+})();
+
 // ---------------------------------------------------------------- lifecycle
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) { if (mode === 'play') pauseGame(); Sound.suspend(); }
   else Sound.resume();
 });
-window.addEventListener('resize', resize);
+window.addEventListener('resize', () => { resize(); Confetti.size(); });
+window.addEventListener('orientationchange', () => setTimeout(() => { resize(); Confetti.size(); }, 250));
 window.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('touchmove', e => { if (!e.target.closest('.scroll, textarea')) e.preventDefault(); }, { passive: false });
 
@@ -965,10 +1072,14 @@ function frame(now) {
   if (dt <= 0) return;
   if (mode !== 'pause') update(dt);
   render();
+  Confetti.step(dt);
   updateHud();
 }
 
 resize();
+Confetti.size();
 toMenu();
+// canvas text uses the web font: redraw the background once it is ready
+if (document.fonts && document.fonts.load) document.fonts.load('900 20px Vazirmatn').then(buildBg, () => {});
 requestAnimationFrame(frame);
 })();

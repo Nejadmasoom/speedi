@@ -3,90 +3,137 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#0d0f1c">
+<meta name="theme-color" content="#eaf3ff">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="description" content="نوا — بلوک‌های موسیقی. کاشی‌ها را بزن و آهنگ را بساز؛ کلاسیک با پیانو و ایرانی با سنتور.">
-<title>نوا — بلوک‌های موسیقی</title>
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="description" content="نوا — بلوک‌های موسیقی از آناتومیار. کاشی‌های رنگی را بزن و آهنگ را بساز؛ جهانی با پیانو و ایرانی با سنتور.">
+<title>نوا — بلوک‌های موسیقی | آناتومیار</title>
 <link rel="manifest" href="../manifest.webmanifest">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap">
-<link rel="stylesheet" href="style.css?v=202609281933">
+<link rel="icon" href="brand/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="brand/favicon.png">
+<link rel="stylesheet" href="style.css?v=202610201800">
 </head>
 <body>
-<canvas id="game" aria-label="بازی"></canvas>
+<canvas id="game" aria-label="صفحه‌ی بازی"></canvas>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<!-- splash: brand + first tap (also unlocks audio on mobile) -->
+<div id="splash" class="overlay splash">
+  <div class="splash-card">
+    <img class="brand-logo" src="brand/logo.webp" alt="آناتومیار — به دنیایت بیفزا" width="220" height="254">
+    <h1 class="title">نوا</h1>
+    <p class="tag">بلوک‌های موسیقی · کاشی‌ها را بزن، آهنگ بساز!</p>
+    <button id="btnStart" class="cta big">بزن بریم! 🎵</button>
+  </div>
+  <div class="notes-bg" aria-hidden="true"><span>♪</span><span>♫</span><span>♩</span><span>♬</span><span>♪</span><span>♫</span></div>
+</div>
 
 <button id="btnSound" class="icon-btn" aria-label="صدا">
-  <svg class="on" viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>
-  <svg class="off" viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M4 9v6h4l5 4V5L8 9H4zm15.6 3 2.2-2.2-1.4-1.4-2.2 2.2-2.2-2.2-1.4 1.4 2.2 2.2-2.2 2.2 1.4 1.4 2.2-2.2 2.2 2.2 1.4-1.4-2.2-2.2z"/></svg>
+  <svg class="on" viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>
+  <svg class="off" viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M4 9v6h4l5 4V5L8 9H4zm15.6 3 2.2-2.2-1.4-1.4-2.2 2.2-2.2-2.2-1.4 1.4 2.2 2.2-2.2 2.2 1.4 1.4 2.2-2.2 2.2 2.2 1.4-1.4-2.2-2.2z"/></svg>
 </button>
 
 <div id="hud" hidden>
   <button id="btnBack" class="icon-btn" aria-label="توقف">
-    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+    <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
   </button>
   <div class="top">
-    <div id="prog"><div id="progFill"></div><span class="st" style="left:33.3%">★</span><span class="st" style="left:66.6%">★</span><span class="st" style="left:100%">★</span></div>
     <div id="score">۰</div>
+    <div id="prog"><div id="progFill"></div><span class="st" style="left:33.3%">★</span><span class="st" style="left:66.6%">★</span><span class="st" style="left:100%">★</span></div>
     <div id="combo" aria-live="off"></div>
+  </div>
+  <img id="brandBadge" class="brand-badge" src="brand/mark.webp" alt="آناتومیار" width="120" height="91">
+</div>
+
+<div id="menu" class="overlay" hidden>
+  <div class="sheet">
+    <aside class="side">
+      <header class="brand">
+        <img class="brand-logo" src="brand/logo.webp" alt="آناتومیار — به دنیایت بیفزا" width="220" height="254">
+        <div class="brand-text">
+          <h1 class="title">نوا</h1>
+          <p class="tag">کاشی‌های رنگی را بزن، آهنگ بساز!</p>
+        </div>
+        <div class="top-actions">
+          <span id="starTotal" class="total" title="مجموع ستاره‌ها">★ ۰</span>
+          <button id="btnHelp" class="round" aria-label="راهنمای بازی">؟</button>
+        </div>
+      </header>
+      <button id="daily" class="daily"></button>
+      <div class="inst-wrap">
+        <p class="label">ساز را انتخاب کن</p>
+        <div id="instPick" class="insts" role="group" aria-label="ساز"></div>
+      </div>
+    </aside>
+    <main class="main">
+      <nav class="tabs" role="tablist">
+        <button class="tab" data-tab="classic" role="tab"><span>🌍</span>جهانی</button>
+        <button class="tab" data-tab="iranian" role="tab"><span>🪕</span>ایرانی</button>
+        <button class="tab" data-tab="mine" role="tab"><span>✏️</span>آهنگ‌های من</button>
+      </nav>
+      <div id="songList" class="scroll"></div>
+      <button id="btnAdd" class="cta" hidden>+ ساختن آهنگ تازه</button>
+      <a class="home" href="../">← همه‌ی بازی‌ها</a>
+    </main>
   </div>
 </div>
 
-<div id="menu" class="overlay">
-  <div class="sheet">
-    <header>
-      <h1 class="logo">نوا</h1>
-      <p class="tag">بلوک‌های موسیقی · کاشی‌ها را بزن، آهنگ را بساز</p>
-      <span id="starTotal" class="total" title="مجموع ستاره‌ها">★ ۰</span>
-    </header>
-    <button id="daily" class="daily"></button>
-    <nav class="tabs">
-      <button class="tab" data-tab="classic">جهانی</button>
-      <button class="tab" data-tab="iranian">ایرانی</button>
-      <button class="tab" data-tab="mine">آهنگ‌های من</button>
-    </nav>
-    <div id="instPick" class="insts" role="group" aria-label="ساز"></div>
-    <div id="songList" class="scroll"></div>
-    <button id="btnAdd" class="cta" hidden>+ افزودن آهنگ</button>
-    <a class="home" href="../">← همه‌ی بازی‌ها</a>
+<div id="help" class="overlay" hidden>
+  <div class="panel help">
+    <h2>چطور بازی کنم؟</h2>
+    <ol class="steps">
+      <li><span class="ico c1">👆</span><div><b>کاشی رنگی را بزن</b><small>هر کاشی یک نُت از آهنگ را می‌نوازد.</small></div></li>
+      <li><span class="ico c2">🚫</span><div><b>جای خالی را نزن</b><small>اگر جای خالی را بزنی یا کاشی‌ای از دستت برود، بازی تمام می‌شود.</small></div></li>
+      <li><span class="ico c3">✋</span><div><b>کاشی بلند را نگه دار</b><small>انگشتت را روی کاشی‌های بلند نگه دار تا پر شوند.</small></div></li>
+      <li><span class="ico c4">⏱️</span><div><b>روی خط‌چین بزن</b><small>اگر کاشی را درست روی خط‌چین بزنی، «عالی» می‌گیری و کمبو می‌سازی.</small></div></li>
+      <li><span class="ico c5">⭐</span><div><b>ستاره جمع کن</b><small>با ستاره‌ها آهنگ‌ها و سازهای تازه باز می‌شوند.</small></div></li>
+    </ol>
+    <p class="keys">روی کامپیوتر: کلیدهای <kbd>D</kbd> <kbd>F</kbd> <kbd>J</kbd> <kbd>K</kbd></p>
+    <button id="btnHelpOk" class="cta">فهمیدم!</button>
   </div>
 </div>
 
 <div id="lesson" hidden></div>
-<div id="toast" hidden></div>
+<div id="toast" role="status" hidden></div>
 
 <div id="loading" class="overlay" hidden>
-  <div class="panel small"><p>در حال کوک کردن ساز…</p><div class="bar"><div id="loadBar"></div></div></div>
+  <div class="panel small">
+    <img class="brand-mark" src="brand/mark.webp" alt="" width="120" height="91">
+    <p>در حال کوک کردن ساز… <span class="bounce">🎶</span></p>
+    <div class="bar"><div id="loadBar"></div></div>
+  </div>
 </div>
 
 <div id="pause" class="overlay" hidden>
   <div class="panel">
-    <h2>توقف</h2>
-    <button id="btnResume" class="cta">ادامه</button>
-    <button id="btnQuit" class="ghost">آهنگ‌ها</button>
+    <img class="brand-mark" src="brand/mark.webp" alt="" width="120" height="91">
+    <h2>یک نفس تازه کن ☕</h2>
+    <button id="btnResume" class="cta">ادامه ▶</button>
+    <button id="btnQuit" class="ghost">برگشت به آهنگ‌ها</button>
   </div>
 </div>
 
 <div id="over" class="overlay" hidden>
-  <div class="panel">
+  <div class="panel result">
+    <img class="brand-mark" src="brand/mark.webp" alt="آناتومیار" width="120" height="91">
     <h2 id="overTitle">آفرین!</h2>
     <div id="overStars" class="big-stars"></div>
     <div id="overScore" class="final">۰</div>
-    <p id="newBest" class="badge" hidden>رکورد جدید!</p>
+    <p id="newBest" class="badge" hidden>🏆 رکورد جدید!</p>
     <p id="overStats" class="stats"></p>
     <div id="overNews" class="news" hidden></div>
     <p class="best-line">رکورد این آهنگ: <b id="overBest">۰</b></p>
-    <button id="btnRetry" class="cta">دوباره</button>
-    <button id="btnSongs" class="ghost">آهنگ‌ها</button>
+    <div class="row">
+      <button id="btnSongs" class="ghost">آهنگ‌ها</button>
+      <button id="btnRetry" class="cta">دوباره 🔁</button>
+    </div>
   </div>
 </div>
 
 <div id="editor" class="overlay" hidden>
   <div class="panel wide scroll">
-    <h2>آهنگ تازه</h2>
+    <h2>✏️ آهنگ تازه</h2>
     <label>نام آهنگ<input id="edTitle" maxlength="40" placeholder="مثلاً: ترانه‌ی محلی"></label>
     <div class="import">
       <label class="filebtn">🎵 تبدیل فایل به نُت (صدا یا MIDI)<input id="edFile" type="file" accept="audio/*,.mid,.midi,audio/midi"></label>
@@ -125,9 +172,9 @@
   </div>
 </div>
 
-<script src="audio.js?v=202609281933"></script>
-<script src="songs.js?v=202609281933"></script>
-<script src="convert.js?v=202609281933"></script>
-<script src="game.js?v=202609281933"></script>
+<script src="audio.js?v=202610201800"></script>
+<script src="songs.js?v=202610201800"></script>
+<script src="convert.js?v=202610201800"></script>
+<script src="game.js?v=202610201800"></script>
 </body>
 </html>

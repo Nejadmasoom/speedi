@@ -15,7 +15,8 @@ const Convert = (() => {
     if (libLoad) return libLoad;
     libLoad = new Promise((res, rej) => {
       const s = document.createElement('script');
-      s.src = 'vendor/basic-pitch.min.js';
+      // the single-file build (nava-standalone.html) serves its bundled copy through window.navaAssetURL
+      s.src = window.navaAssetURL ? window.navaAssetURL('vendor/basic-pitch.min.js') : 'vendor/basic-pitch.min.js';
       s.onload = () => window.BasicPitchLib ? res(window.BasicPitchLib) : rej(new Error('lib'));
       s.onerror = () => { libLoad = null; s.remove(); rej(new Error('lib')); };
       document.head.appendChild(s);
