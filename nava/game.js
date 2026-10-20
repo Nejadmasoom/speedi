@@ -1062,7 +1062,8 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('resize', () => { resize(); Confetti.size(); });
 window.addEventListener('orientationchange', () => setTimeout(() => { resize(); Confetti.size(); }, 250));
 window.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('touchmove', e => { if (!e.target.closest('.scroll, textarea')) e.preventDefault(); }, { passive: false });
+// block page scrolling over the game, but let menus and panels that do not fit the screen scroll
+document.addEventListener('touchmove', e => { if (!e.target.closest('.scroll, textarea, .panel')) e.preventDefault(); }, { passive: false });
 
 let last = performance.now();
 function frame(now) {

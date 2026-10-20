@@ -69,7 +69,7 @@
   .title-speedi { font-family: Orbitron, sans-serif; font-style: italic; }
   .title-undead { font-family: Creepster, sans-serif; letter-spacing: .06em; }
   .nava .play { background: linear-gradient(135deg, #f7941d, #d4722a); box-shadow: 0 6px 18px rgba(247, 148, 29, .4); }
-  .title-nava { font-size: 22px; background: linear-gradient(135deg, #f7941d, #2453a6 80%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .title-nava { font-size: 22px; background: linear-gradient(135deg, #ffb057, #7aa7ff 80%); -webkit-background-clip: text; background-clip: text; color: transparent; }
   footer { margin-top: 26px; text-align: center; font-size: 12px; opacity: .4; }
 </style>
 </head>
@@ -84,6 +84,34 @@
   </header>
 
   <div class="grid">
+    <a class="card nava" href="nava/">
+      <svg class="art" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="nBg" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="#e4f0ff"/><stop offset="1" stop-color="#ece6ff"/></linearGradient>
+          <linearGradient id="nO" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb057"/><stop offset="1" stop-color="#f7731d"/></linearGradient>
+          <linearGradient id="nB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b8cff"/><stop offset="1" stop-color="#2453a6"/></linearGradient>
+          <linearGradient id="nP" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b28bff"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+          <linearGradient id="nG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3ee0a0"/><stop offset="1" stop-color="#0ea371"/></linearGradient>
+        </defs>
+        <rect width="320" height="200" fill="url(#nBg)"/>
+        <g fill="#2453a6" opacity=".08" font-size="40" font-weight="900"><text x="30" y="60">♪</text><text x="260" y="150">♫</text><text x="140" y="190">♩</text></g>
+        <g stroke="#2453a6" stroke-opacity=".12" stroke-width="1.5"><path d="M80 0v200M160 0v200M240 0v200"/></g>
+        <g font-size="22" font-weight="900" fill="#fff" text-anchor="middle">
+          <rect x="4" y="8" width="72" height="62" rx="12" fill="#c4520e"/><rect x="4" y="4" width="72" height="62" rx="12" fill="url(#nO)"/><text x="40" y="44">♪</text>
+          <rect x="164" y="44" width="72" height="110" rx="12" fill="#1a3b7a"/><rect x="164" y="40" width="72" height="110" rx="12" fill="url(#nB)"/>
+          <circle cx="200" cy="122" r="11" fill="none" stroke="#fff" stroke-width="3"/>
+          <rect x="84" y="138" width="72" height="56" rx="12" fill="url(#nP)" opacity=".45"/>
+          <rect x="244" y="-14" width="72" height="56" rx="12" fill="#077a54"/><rect x="244" y="-18" width="72" height="56" rx="12" fill="url(#nG)"/><text x="280" y="18">♪</text>
+        </g>
+        <circle cx="120" cy="166" r="24" fill="none" stroke="#7c3aed" stroke-width="3" opacity=".5"/>
+        <path d="M0 176h320" stroke="#2453a6" stroke-width="3" stroke-dasharray="8 10" stroke-linecap="round" opacity=".35"/>
+      </svg>
+      <div class="info">
+        <div><h2 class="title-nava">نوا</h2><p>بلوک‌های موسیقی · پیانو و سنتور</p></div>
+        <span class="play"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M8 5v14l11-7z"/></svg></span>
+      </div>
+    </a>
+
     <a class="card speedi" href="speedi/">
       <svg class="art" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
         <defs>
@@ -168,33 +196,6 @@
       </div>
     </a>
 
-    <a class="card nava" href="nava/">
-      <svg class="art" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-        <defs>
-          <linearGradient id="nBg" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="#e4f0ff"/><stop offset="1" stop-color="#ece6ff"/></linearGradient>
-          <linearGradient id="nO" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb057"/><stop offset="1" stop-color="#f7731d"/></linearGradient>
-          <linearGradient id="nB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b8cff"/><stop offset="1" stop-color="#2453a6"/></linearGradient>
-          <linearGradient id="nP" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b28bff"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
-          <linearGradient id="nG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3ee0a0"/><stop offset="1" stop-color="#0ea371"/></linearGradient>
-        </defs>
-        <rect width="320" height="200" fill="url(#nBg)"/>
-        <g fill="#2453a6" opacity=".08" font-size="40" font-weight="900"><text x="30" y="60">♪</text><text x="260" y="150">♫</text><text x="140" y="190">♩</text></g>
-        <g stroke="#2453a6" stroke-opacity=".12" stroke-width="1.5"><path d="M80 0v200M160 0v200M240 0v200"/></g>
-        <g font-size="22" font-weight="900" fill="#fff" text-anchor="middle">
-          <rect x="4" y="8" width="72" height="62" rx="12" fill="#c4520e"/><rect x="4" y="4" width="72" height="62" rx="12" fill="url(#nO)"/><text x="40" y="44">♪</text>
-          <rect x="164" y="44" width="72" height="110" rx="12" fill="#1a3b7a"/><rect x="164" y="40" width="72" height="110" rx="12" fill="url(#nB)"/>
-          <circle cx="200" cy="122" r="11" fill="none" stroke="#fff" stroke-width="3"/>
-          <rect x="84" y="138" width="72" height="56" rx="12" fill="url(#nP)" opacity=".45"/>
-          <rect x="244" y="-14" width="72" height="56" rx="12" fill="#077a54"/><rect x="244" y="-18" width="72" height="56" rx="12" fill="url(#nG)"/><text x="280" y="18">♪</text>
-        </g>
-        <circle cx="120" cy="166" r="24" fill="none" stroke="#7c3aed" stroke-width="3" opacity=".5"/>
-        <path d="M0 176h320" stroke="#2453a6" stroke-width="3" stroke-dasharray="8 10" stroke-linecap="round" opacity=".35"/>
-      </svg>
-      <div class="info">
-        <div><h2 class="title-nava">نوا</h2><p>بلوک‌های موسیقی · پیانو و سنتور</p></div>
-        <span class="play"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M8 5v14l11-7z"/></svg></span>
-      </div>
-    </a>
   </div>
 
   <footer><img class="brand-mark" src="brand/mark.webp" alt="" width="120" height="91">آناتومیار · بدون نصب · مستقیم در مرورگر</footer>
