@@ -11,9 +11,7 @@
 <title>Speedi — مسابقه‌ی شبانه</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800&family=Vazirmatn:wght@400;700;900&display=swap">
+<link rel="stylesheet" href="../fonts/fonts.css">
 <link rel="stylesheet" href="style.css?v=202609281351">
 </head>
 <body>
@@ -38,6 +36,7 @@
 
 <div id="menu" class="overlay">
   <div class="panel">
+    <img class="brand-logo" src="../brand/logo-light.webp" alt="آناتومیار — به دنیایت بیفزا" width="220" height="254">
     <h1 class="logo">SPEEDI</h1>
     <p class="tag">بزرگراه نئونی · شب · سرعت</p>
     <button id="btnStart" class="cta">شروع</button>
@@ -54,6 +53,7 @@
 
 <div id="pause" class="overlay" hidden>
   <div class="panel">
+    <img class="brand-mark" src="../brand/mark.webp" alt="آناتومیار" width="120" height="91">
     <h2>توقف</h2>
     <button id="btnResume" class="cta">ادامه</button>
   </div>
@@ -61,6 +61,7 @@
 
 <div id="over" class="overlay" hidden>
   <div class="panel">
+    <img class="brand-mark" src="../brand/mark.webp" alt="آناتومیار" width="120" height="91">
     <h2 class="crash">تصادف!</h2>
     <div id="finalScore" class="final">۰</div>
     <p id="newBest" class="badge" hidden>رکورد جدید!</p>

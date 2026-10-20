@@ -1,0 +1,5 @@
+/* Local copies of the web fonts (SIL Open Font License, see OFL-*.txt) so the games work offline. */
+@font-face { font-family: Vazirmatn; src: url("Vazirmatn.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: Orbitron; src: url("orbitron-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: Orbitron; src: url("orbitron-latin-800-normal.woff2") format("woff2"); font-weight: 800 900; font-display: swap; }
+@font-face { font-family: Creepster; src: url("creepster-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }

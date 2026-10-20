@@ -652,6 +652,7 @@ const isTouch = matchMedia('(pointer: coarse)').matches;
 function resetInput() {
   for (const s of [moveStick, aimStick]) { s.id = null; s.dx = s.dy = 0; }
   mouse.down = false;
+  keys.clear(); // a key held while pausing would otherwise keep walking after resume
 }
 
 window.addEventListener('pointerdown', e => {
@@ -688,7 +689,8 @@ const endPointer = e => {
 window.addEventListener('pointerup', endPointer);
 window.addEventListener('pointercancel', endPointer);
 window.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+// block page scrolling during play, but let a panel that does not fit (short landscape phones) scroll
+document.addEventListener('touchmove', e => { if (!e.target.closest('.panel')) e.preventDefault(); }, { passive: false });
 
 window.addEventListener('keydown', e => {
   if (e.repeat && mode !== 'play') { e.preventDefault(); return; }
@@ -1105,7 +1107,8 @@ function drawActor(fn, obj, x, y, face, extra) {
 
 function render() {
   g = ctx;
-  const sx = (Math.random() - 0.5) * shake * 12, sy = (Math.random() - 0.5) * shake * 12;
+  const sh = mode === 'pause' ? 0 : shake; // shake only decays in update(), so freeze it while paused
+  const sx = (Math.random() - 0.5) * sh * 12, sy = (Math.random() - 0.5) * sh * 12;
   worldTransform(sx, sy);
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
   const halfW = W / zoom / 2 + 40, halfH = H / zoom / 2 + 40;
@@ -1370,7 +1373,7 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden) { if (mode === 'play') pauseGame(); Sound.suspend(); }
   else if (mode !== 'pause') Sound.resume();
 });
-window.addEventListener('blur', () => { if (mode === 'play') pauseGame(); });
+window.addEventListener('blur', () => { keys.clear(); mouse.down = false; if (mode === 'play') pauseGame(); });
 window.addEventListener('resize', resize);
 
 let last = performance.now();

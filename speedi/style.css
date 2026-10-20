@@ -251,6 +251,17 @@ h2.crash { color: var(--pink); text-shadow: 0 0 18px rgba(255, 46, 136, .6); }
   .final { font-size: 40px; }
 }
 
+/* ---------- Anatomyar brand ---------- */
+.brand-logo { display: block; width: 78px; height: auto; margin: -8px auto 8px; filter: drop-shadow(0 4px 14px rgba(0, 0, 0, .45)); }
+.brand-mark { display: block; width: 52px; height: auto; margin: -6px auto 6px; filter: drop-shadow(0 3px 10px rgba(0, 0, 0, .45)); }
+@media (max-height: 460px) {
+  /* the panel can be taller than a landscape phone: let it scroll (not on bigger screens, where it would clip the title's glow) */
+  .panel { max-height: calc(100dvh - 24px - var(--st) - var(--sb)); overflow-y: auto; overscroll-behavior: contain; }
+  /* short landscape phones: the logo moves to the screen corner so the panel still fits */
+  #menu .brand-logo { position: fixed; top: calc(10px + var(--st)); left: calc(12px + var(--sl, 0px)); width: 52px; margin: 0; }
+  .brand-mark { display: none; }
+}
+
 @keyframes fade { from { opacity: 0; } }
 @keyframes rise { from { opacity: 0; transform: translateY(18px) scale(.96); } }
 @keyframes pulse { 50% { transform: scale(1.06); } }

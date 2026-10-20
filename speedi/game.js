@@ -553,7 +553,8 @@ const release = e => { if (pointers.delete(e.pointerId)) refreshTouch(); };
 window.addEventListener('pointerup', release);
 window.addEventListener('pointercancel', release);
 window.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+// block page scrolling during play, but let a panel that does not fit (short landscape phones) scroll
+document.addEventListener('touchmove', e => { if (!e.target.closest('.panel')) e.preventDefault(); }, { passive: false });
 
 window.addEventListener('keydown', e => {
   const k = e.code;
@@ -627,6 +628,7 @@ function startRun() {
 function pauseGame() {
   if (mode !== 'play') return;
   mode = 'pause'; pointers.clear(); refreshTouch();
+  keyL = keyR = false; // a key held while pausing would otherwise keep steering after resume
   show(ui.pause, true);
   Sound.suspend();
 }
@@ -841,7 +843,8 @@ function drawBackground() {
 }
 
 function render() {
-  const sx = (Math.random() - 0.5) * shake * 10, sy = (Math.random() - 0.5) * shake * 8;
+  const sh = mode === 'pause' ? 0 : shake; // shake only decays in update(), so freeze it while paused
+  const sx = (Math.random() - 0.5) * sh * 10, sy = (Math.random() - 0.5) * sh * 8;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
   ctx.translate(sx, sy);
@@ -1100,7 +1103,7 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden) { if (mode === 'play') pauseGame(); Sound.suspend(); }
   else if (mode !== 'pause') Sound.resume();
 });
-window.addEventListener('blur', () => { if (mode === 'play') pauseGame(); });
+window.addEventListener('blur', () => { keyL = keyR = false; if (mode === 'play') pauseGame(); });
 window.addEventListener('resize', resize);
 
 let last = performance.now();
